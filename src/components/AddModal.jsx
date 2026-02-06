@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+function getLocalDateTime() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+}
 
 export default function AddModal({
   onSave,
@@ -11,9 +16,7 @@ export default function AddModal({
   const [category, setCategory] = useState("");
   const [division, setDivision] = useState("Personal");
   const [description, setDescription] = useState("");
-  const [dateTime, setDateTime] = useState(
-    new Date().toISOString().slice(0, 16)
-  );
+  const [dateTime, setDateTime] = useState(getLocalDateTime());
 
   /* ✅ PRELOAD DATA FOR EDIT */
   useEffect(() => {

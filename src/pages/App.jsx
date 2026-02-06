@@ -11,6 +11,7 @@ import AccountSummary from "../components/AccountSummary";
 
 export default function App() {
   const API = import.meta.env.VITE_API_URL;
+
   const [transactions, setTransactions] = useState([]);
   const [reportType, setReportType] = useState("monthly");
   const [reportData, setReportData] = useState([]);
@@ -30,18 +31,22 @@ export default function App() {
     setTransactions(res.data);
   };
 
+  /* ================= LOAD REPORTS (✅ NEW) ================= */
+  const loadReports = async () => {
+    const res = await axios.get(`${API}/api/reports/${reportType}`);
+    setReportData(res.data);
+  };
+
   useEffect(() => {
     loadTransactions();
+    loadReports(); // ✅ load reports on initial load
   }, []);
 
-  /* ================= LOAD REPORT ================= */
   useEffect(() => {
-    axios
-      .get(`${API}/api/reports/${reportType}`)
-      .then((res) => setReportData(res.data));
+    loadReports(); // ✅ reload when report type changes
   }, [reportType]);
 
-  /* ================= SUMMARY FROM REPORT ================= */
+  /* ================= SUMMARY ================= */
   const summary = useMemo(() => {
     const income = reportData.reduce((s, r) => s + r.income, 0);
     const expense = reportData.reduce((s, r) => s + r.expense, 0);
@@ -67,13 +72,15 @@ export default function App() {
   /* ================= CRUD ================= */
   const addTransaction = async (data) => {
     await axios.post(`${API}/api/transactions`, data);
-    loadTransactions();
+    await loadTransactions();
+    await loadReports(); // ✅ FIX
     setShowAddModal(false);
   };
 
   const updateTransaction = async (id, data) => {
     await axios.put(`${API}/api/transactions/${id}`, data);
-    loadTransactions();
+    await loadTransactions();
+    await loadReports(); // ✅ FIX
     setEditTransaction(null);
   };
 
@@ -92,9 +99,9 @@ export default function App() {
           <Card title="Expense" value={summary.expense} color="red" />
           <Card title="Balance" value={summary.balance} color="indigo" />
         </div>
-        {/* ACCOUNT SUMMARY */}
-<AccountSummary transactions={transactions} />
 
+        {/* ACCOUNT SUMMARY */}
+        <AccountSummary transactions={transactions} />
 
         {/* FILTERS */}
         <FilterBar
@@ -169,7 +176,10 @@ export default function App() {
       </div>
 
       {showAddModal && (
-        <AddModal onSave={addTransaction} onClose={() => setShowAddModal(false)} />
+        <AddModal
+          onSave={addTransaction}
+          onClose={() => setShowAddModal(false)}
+        />
       )}
 
       {editTransaction && (

@@ -134,12 +134,12 @@ cd money-manager-frontend
 npm install
 npm run dev
 ```
-## Github Repo
-#Frontend
+### Github Repo
+# Frontend
 
 https://github.com/Mohamed-Fasidh/money-manager-frontend
 
-#Backend
+# Backend
 
 https://github.com/Mohamed-Fasidh/money_manager_backend
 
